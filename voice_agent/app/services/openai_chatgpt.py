@@ -1,11 +1,22 @@
-from portkey_ai import Portkey
+from openai import OpenAI
 
 class ChatGPTService:
     def __init__(self, api_key, model="gpt-4o-mini", provider="openai"):
-        
-        self.client = Portkey(
-            provider=provider,  # e.g., "openai", "anthropic", "bedrock", etc.
-            Authorization=api_key  # Your provider API key
+        """
+        Initialize the ChatGPTService with the OpenAI client configured for Portkey's gateway.
+        :param api_key: Your OpenAI API key (or provider-specific API key).
+        :param portkey_api_key: Your Portkey API key.
+        :param model: The model to use for generating responses (default: gpt-4o-mini).
+        :param provider: The LLM provider (default: openai).
+        """
+        self.client = OpenAI(
+            api_key="your-openai-key",  # Provider-specific API key (e.g., OpenAI API key)
+            base_url="https://api.portkey.ai/v1",  # Point to Portkey's gateway URL
+            default_headers={
+                "x-portkey-api-key": "protkey-api-key",  # Portkey API key
+                "x-portkey-provider": provider,       # Provider (e.g., "openai")
+                "Content-Type": "application/json"
+            }
         )
         self.model = model
 
@@ -17,8 +28,8 @@ class ChatGPTService:
         """
         try:
             response = self.client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
-                model=self.model
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}]
             )
             return response.choices[0].message.content
         except Exception as e:

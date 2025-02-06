@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
 
     # OpenAI and F5-TTS settings
-    PORTKEY_API_KEY: str = "EGOTgW4NfP9ddGndBpoAbCmGhAxR"
+    PORTKEY_API_KEY: str = "your-portkey-api-key"
     F5_TTS_CLI_PATH: str = "f5-tts_infer-cli"
 
     class Config:
