@@ -10,10 +10,10 @@ class ChatGPTService:
         :param provider: The LLM provider (default: openai).
         """
         self.client = OpenAI(
-            api_key="your-openai-key",  # Provider-specific API key (e.g., OpenAI API key)
+            api_key="open-ai-be92f5",  # Provider-specific API key (e.g., OpenAI API key)
             base_url="https://api.portkey.ai/v1",  # Point to Portkey's gateway URL
             default_headers={
-                "x-portkey-api-key": "protkey-api-key",  # Portkey API key
+                "x-portkey-api-key": "EGOTgW4NfP9ddGndBpoAbCmGhAxR",  # Portkey API key
                 "x-portkey-provider": provider,       # Provider (e.g., "openai")
                 "Content-Type": "application/json"
             }
