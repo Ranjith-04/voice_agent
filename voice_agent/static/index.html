@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Agent</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    audio {
+      margin-top: 20px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Voice Agent</h1>
+    <p>Choose an option to interact with the Voice Agent:</p>
+
+    <!-- Option 1: Record Audio -->
+    <button id="recordButton">Record Audio</button>
+    <button id="stopButton" style="display: none;">Stop Recording</button>
+    <p id="status"></p>
+
+    <!-- Option 2: Upload Audio -->
+    <form id="uploadForm" action="/voice-agent/voice-pipe/" method="post" enctype="multipart/form-data">
+      <label for="audioFile">Upload Audio File:</label>
+      <input type="file" id="audioFile" accept="audio/*" required>
+      <button type="submit">Submit</button>
+    </form>
+
+    <!-- Output -->
+    <h2>Response:</h2>
+    <audio id="responseAudio" controls></audio>
+  </div>
+
+  <script>
+    // Variables for recording
+    let mediaRecorder;
+    let audioChunks = [];
+
+    const recordButton = document.getElementById("recordButton");
+    const stopButton = document.getElementById("stopButton");
+    const status = document.getElementById("status");
+
+    // Start Recording
+    recordButton.addEventListener("click", async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = event => {
+          audioChunks.push(event.data);
+        };
+
+        // When recording stops, send the audio blob to the server
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+          // Reset for future recordings
+          audioChunks = [];
+
+          // Create a FormData object and append the audio file
+          const formData = new FormData();
+          formData.append('audio_file', audioBlob, 'recording.wav');
+
+          try {
+            // Send a POST request to the voice agent endpoint
+            const response = await fetch('/voice-agent/voice-pipe/', {
+              method: 'POST',
+              body: formData
+            });
+            const data = await response.json();
+            // Assuming the server returns a JSON object like:
+            // {"file_path": "output_speech_xxx.wav"}
+            const responseAudio = document.getElementById('responseAudio');
+            // Set the audio element's source to the returned file path.
+            // (Make sure the file is served via HTTP so the browser can fetch it.)
+            responseAudio.src = data.file_path;
+            responseAudio.play();
+          } catch (err) {
+            console.error('Error during fetch:', err);
+          }
+        };
+
+        mediaRecorder.start();
+        recordButton.style.display = "none";
+        stopButton.style.display = "inline";
+        status.textContent = "Recording...";
+      } catch (error) {
+        alert("Error accessing microphone: " + error.message);
+      }
+    });
+
+    // Stop Recording
+    stopButton.addEventListener("click", () => {
+      mediaRecorder.stop();
+      recordButton.style.display = "inline";
+      stopButton.style.display = "none";
+      status.textContent = "Processing recording...";
+    });
+
+    // Handle file upload form submission without reloading the page
+    const uploadForm = document.getElementById("uploadForm");
+    uploadForm.addEventListener("submit", async (event) => {
+      event.preventDefault();  // Prevent default form submission
+      const fileInput = document.getElementById("audioFile");
+      if (fileInput.files.length === 0) {
+        alert("Please select a file to upload.");
+        return;
+      }
+      const formData = new FormData();
+      formData.append('audio_file', fileInput.files[0]);
+
+      try {
+        const response = await fetch('/voice-agent/voice-pipe/', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        const responseAudio = document.getElementById('responseAudio');
+        responseAudio.src = data.file_path;
+        responseAudio.play();
+      } catch (err) {
+        console.error('Error during file upload:', err);
+      }
+    });
+  </script>
+</body>
+</html>

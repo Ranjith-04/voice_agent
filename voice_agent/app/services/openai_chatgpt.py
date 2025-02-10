@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 class ChatGPTService:
-    def __init__(self, api_key, model="gpt-4o-mini", provider="openai"):
+    def __init__(self, api_key, model="gpt-4o", provider="openai"):
         """
         Initialize the ChatGPTService with the OpenAI client configured for Portkey's gateway.
         :param api_key: Your OpenAI API key (or provider-specific API key).
@@ -10,11 +10,12 @@ class ChatGPTService:
         :param provider: The LLM provider (default: openai).
         """
         self.client = OpenAI(
-            api_key="open-ai-be92f5",  # Provider-specific API key (e.g., OpenAI API key)
+            api_key="EGOTgW4NfP9ddGndBpoAbCmGhAxR",  # Provider-specific API key (e.g., OpenAI API key)
             base_url="https://api.portkey.ai/v1",  # Point to Portkey's gateway URL
             default_headers={
                 "x-portkey-api-key": "EGOTgW4NfP9ddGndBpoAbCmGhAxR",  # Portkey API key
                 "x-portkey-provider": provider,       # Provider (e.g., "openai")
+                "x-portkey-virtual-key": "open-ai-be92f5",
                 "Content-Type": "application/json"
             }
         )

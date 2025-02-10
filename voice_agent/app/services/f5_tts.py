@@ -13,6 +13,7 @@ class F5TTSService:
         """
         command = [
             self.cli_path,
+            "--ref_audio", "/teamspace/studios/this_studio/voice_agent/temp.wav",
             "--gen_text", text,
             "--output_file", output_file
         ]
